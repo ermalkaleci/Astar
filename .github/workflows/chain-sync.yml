@@ -12,7 +12,7 @@ jobs:
 
     steps:
     - name: Checkout the source code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         submodules: true
 
@@ -70,6 +70,9 @@ jobs:
         chain: [ "astar", "shiden", "shibuya" ]
 
     steps:
+      - name: Checkout the source code
+        uses: actions/checkout@v4
+
       - name: Download pre-built collator binary
         uses: actions/download-artifact@v3
         with:
