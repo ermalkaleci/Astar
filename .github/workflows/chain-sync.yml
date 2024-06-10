@@ -1,42 +1,83 @@
-name: Chain Sync
-
+name: Release Build
 on:
   push:
-    tags:
-      - v[0-9]+.[0-9]+.[0-9]+*
-  workflow_dispatch:
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
 
 jobs:
-  chain-sync:
-    continue-on-error: true
-    timeout-minutes: 60
+  native-linux:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target:
+        - x86_64-unknown-linux-gnu
 
     steps:
-      - name: Checkout sources
+    - name: Checkout the source code
+      uses: actions/checkout@v4
+      with:
+        submodules: true
+
+    - name: Install deps
+      run: sudo apt -y install protobuf-compiler
+
+    - name: aarch64 setup
+      if: contains(matrix.target, 'aarch64')
+      shell: bash
+      run: |
+        sudo apt update
+        sudo apt install -y gcc-multilib g++-multilib
+        sudo apt install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
+
+        mkdir -p .cargo
+        touch .cargo/config
+        printf '[target.aarch64-unknown-linux-gnu]\nlinker = "aarch64-linux-gnu-gcc"' >> .cargo/config
+
+    - name: x86_64 setup
+      if: contains(matrix.target, 'x86_64')
+      run: |
+        mkdir -p .cargo
+        touch .cargo/config
+        printf '[target.x86_64-unknown-linux-gnu]\nrustflags = ["-Clink-arg=-fuse-ld=lld"]' >> .cargo/config
+
+    - name: Install & display rust toolchain
+      run: rustup show
+
+    - name: Add aarch64 target
+      if: contains(matrix.target, 'aarch64')
+      run: rustup target add ${{ matrix.target }}
+
+    - name: Check targets are installed correctly
+      run: rustup target list --installed
+
+    - name: Build optimized binary
+      run: CARGO_PROFILE_RELEASE_LTO=true RUSTFLAGS="-C codegen-units=1" cargo build --release --target ${{ matrix.target }} --verbose --locked
+
+    - name: Set artifact name
+      env:
+        TARGET: ${{ matrix.target }}
+      id: artifact-name
+      run: echo "::set-output name=name::astar-ubuntu-latest-${TARGET%%-*}"
+
+    - uses: actions/upload-artifact@v3
+      with:
+        name: ${{ steps.artifact-name.outputs.name }}
+        path: target/${{ matrix.target }}/release/astar-collator
+
+  chain-sync:
+    needs: native-linux
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        chain: [ "astar", "shiden", "shibuya" ]
+
+    steps:
+      - name: Checkout the source code
         uses: actions/checkout@v4
 
-      - name: Install deps
-        run: sudo apt -y install protobuf-compiler
+      - name: Download pre-built collator binary
+        uses: actions/download-artifact@v3
+        with:
+          name: astar-ubuntu-latest-x86_64
+          path: target/release/astar-collator
 
-      - name: Install & display rust toolchain
-        run: rustup show
-
-      - name: Check targets are installed correctly
-        run: rustup target list --installed
-
-      - name: Build
-        run: cargo build --release --locked
-
-      - name: Test astar sync
-        run: ./scripts/sync.sh astar
-
-      - name: Test shiden sync
-        run: ./scripts/sync.sh shiden
-
-      - name: Test shibuya sync
-        run: ./scripts/sync.sh shibuya
+      - run: ./scripts/sync.sh ${{ matrix.chain }}
+      
