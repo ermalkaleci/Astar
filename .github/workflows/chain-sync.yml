@@ -62,12 +62,12 @@ jobs:
         name: ${{ steps.artifact-name.outputs.name }}
         path: target/${{ matrix.target }}/release/astar-collator
 
-  chain-sync:
+  zombienet-smoke:
     needs: native-linux
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        chain: [ "astar", "shiden", "shibuya" ]
+        chain: [ "astar-dev", "shiden-dev", "shibuya-dev" ]
 
     steps:
       - name: Checkout the source code
@@ -77,6 +77,15 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: astar-ubuntu-latest-x86_64
-          path: target/release/astar-collator
+          path: target/release
 
-      - run: ./scripts/sync.sh ${{ matrix.chain }}
+      - name: Setup
+        run: |
+          chmod +x target/release/astar-collator
+          mv target/release/astar-collator third-party/zombienet
+
+      - name: Sync chain ${{ matrix.chain }}
+        working-directory: third-party/zombienet
+        env:
+          - CHAIN: ${{ matrix.chain }}
+        run: ./smoke.sh
