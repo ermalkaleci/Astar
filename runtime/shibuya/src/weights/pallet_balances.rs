@@ -157,11 +157,11 @@ impl<T: frame_system::Config> pallet_balances::WeightInfo for SubstrateWeight<T>
 		Weight::from_parts(5_975_000, 0)
 	}
 
-	fn burn() -> Weight {
-		// Proof Size summary in bytes:
-		//  Measured:  `0`
-		//  Estimated: `0`
-		// Minimum execution time: 30_151_000 picoseconds.
-		Weight::from_parts(30_968_000, 0)
-	}
+	// fn burn() -> Weight {
+	// 	// Proof Size summary in bytes:
+	// 	//  Measured:  `0`
+	// 	//  Estimated: `0`
+	// 	// Minimum execution time: 30_151_000 picoseconds.
+	// 	Weight::from_parts(30_968_000, 0)
+	// }
 }

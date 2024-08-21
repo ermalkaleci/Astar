@@ -19,12 +19,12 @@
 use super::Runtime;
 
 /// Registered WASM contracts chain extensions.
-pub use pallet_chain_extension_assets::AssetsExtension;
-use pallet_contracts::chain_extension::RegisteredChainExtension;
+// pub use pallet_chain_extension_assets::AssetsExtension;
+// use pallet_contracts::chain_extension::RegisteredChainExtension;
 
-// Following impls defines chain extension IDs.
-impl RegisteredChainExtension<Runtime> for AssetsExtension<Runtime> {
-    const ID: u16 = 02;
-}
+// // Following impls defines chain extension IDs.
+// impl RegisteredChainExtension<Runtime> for AssetsExtension<Runtime> {
+//     const ID: u16 = 02;
+// }
 
-pub type AstarChainExtensions<Runtime> = AssetsExtension<Runtime>;
+// pub type AstarChainExtensions<Runtime> = AssetsExtension<Runtime>;

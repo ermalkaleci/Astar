@@ -22,19 +22,19 @@ use super::{Runtime, UnifiedAccounts};
 pub use pallet_chain_extension_assets::AssetsExtension;
 use pallet_contracts::chain_extension::RegisteredChainExtension;
 
-pub use pallet_chain_extension_unified_accounts::UnifiedAccountsExtension;
+// pub use pallet_chain_extension_unified_accounts::UnifiedAccountsExtension;
 
-// Following impls defines chain extension IDs.
+// // Following impls defines chain extension IDs.
 
-impl RegisteredChainExtension<Runtime> for AssetsExtension<Runtime> {
-    const ID: u16 = 02;
-}
+// impl RegisteredChainExtension<Runtime> for AssetsExtension<Runtime> {
+//     const ID: u16 = 02;
+// }
 
-impl RegisteredChainExtension<Runtime> for UnifiedAccountsExtension<Runtime, UnifiedAccounts> {
-    const ID: u16 = 03;
-}
+// impl RegisteredChainExtension<Runtime> for UnifiedAccountsExtension<Runtime, UnifiedAccounts> {
+//     const ID: u16 = 03;
+// }
 
-pub type LocalChainExtensions<Runtime, UnifiedAccounts> = (
-    AssetsExtension<Runtime>,
-    UnifiedAccountsExtension<Runtime, UnifiedAccounts>,
-);
+// pub type LocalChainExtensions<Runtime, UnifiedAccounts> = (
+//     AssetsExtension<Runtime>,
+//     UnifiedAccountsExtension<Runtime, UnifiedAccounts>,
+// );
